@@ -1,7 +1,6 @@
-    
-var aHrefTag = '<a href="bible.irruptiondays.org?page=';
-var closeATag = '</a>';
 var extensionAndAnchor = '#v';
+var aHrefTag = '<a href="http://bible.irruptiondays.org?page=';
+var closeATag = '</a>';
 var closeAHref1 = '-1" target="bible" class="verseRef">'; //for chapters, no verse specified
 var closeAHref = '" target="bible" class="verseRef" title="Verse opens in a new window or tab">';
 var verseRegex = /(Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Psalms|Proverbs|Ecclesiastes|Song of Songs|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation) ((\d*)*(\d*:\d*)*(\d*-\d*)*(\d*, \d*)*(\d*; \d*)*)*/g;
@@ -12,36 +11,57 @@ function getFilenameFromVerseRef(verseReference) {
     }
     return verseReference;
 }
-//var verseRegex = /(Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Psalms|Proverbs|Ecclesiastes|Song of Songs|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation) (?:\d\s*)?[A-Z]?[a-z]+\s*\d+(?:[:-]\d+)?(?:\s*-\s*\d+)?(?::\d+|(?:\s*[A-Z]?[a-z]+\s*\d+:\d+))?/
 
 
 function verseParser() {
-  var re = $('body').html()
-    
-    .replace(verseRegex, function(w) {
+  var re = $('body').html().replace(verseRegex, function(w) {
 
       let verseRef = w.split(" ");
 
-      //console.log(getBook(verseRef));
-
       let bookName = getBook(verseRef);
-      let references = verseRef.slice(getBookNameLength(verseRef));
+      
+      let taggedReference = '';
+      
+      let splitOnSemi = w.split(';');
 
-      console.log(references);
+      for (let i = 0; i < splitOnSemi.length; ++i) {
+        
+          let splitOnComma = splitOnSemi[i].split(',');
+          
+          let currentChapter = null;
 
-      if (isSimpleReference(w)) {
-        //console.log('####### ref ', references[0]);
-          let chapterVerse = splitOnColon(references[0]);
-          console.log('Chapter: ', chapterVerse.chapter);
-          console.log('Verse: ', chapterVerse.verse);
+          for (let j = 0; j < splitOnComma.length; ++j) {
+          
+          let chapterAndVerse = [];
+          if (isNaN(splitOnComma[j].charAt(0))) {
+            // handle initial name
+            chapterAndVerse = splitOnColon(splitOnComma[j].replace(bookName, ''));
+          } else {
+            chapterAndVerse = splitOnColon(splitOnComma[j]);
+          }
+          
+          
+          if (chapterAndVerse.chapter && !currentChapter) {
+            currentChapter = chapterAndVerse.chapter;
+          } else {
+            chapterAndVerse.chapter = currentChapter;
+          }
+          
+          taggedReference += aHrefTag + getBookFilename(verseRef) + extensionAndAnchor + chapterAndVerse.chapter + '-' + chapterAndVerse.verse + closeAHref + splitOnComma[j] + closeATag
+          
+          if (j != splitOnComma.length - 1 ) {
+            taggedReference += ', ';
+          }
+
+        } 
+        
+        if (i != splitOnSemi.length - 1) {
+          taggedReference += '; ';
+        }
+        
       }
 
-
-      //getReferences = 
-      console.log('w: ', endsWithNonDigit(w));
-      console.log('Ends with ? ', endsWithNonDigit(w));
-
-      return '<span style="color:red;">' + w + '</span>';
+      return taggedReference;
     });
 
   $('body').html(re);
@@ -50,7 +70,18 @@ function verseParser() {
 function getBook(verseRefArray) {
   // handle First and Second X
     if (verseRefArray[0] == 1 || verseRefArray[0] == 2 || verseRefArray[0] == 3) {
-      return (verseRefArray[0]+verseRefArray[1]).toLowerCase();
+      return (verseRefArray[0] + ' ' + verseRefArray[1]);
+    } else if (verseRefArray[0].toLowerCase() == 'song') {
+      return ('Song of Songs');
+    } else {
+      return verseRefArray[0];
+    }
+}
+
+function getBookFilename(verseRefArray) {
+  // handle First and Second X
+    if (verseRefArray[0] == 1 || verseRefArray[0] == 2 || verseRefArray[0] == 3) {
+      return (verseRefArray[0].trim() + verseRefArray[1].trim()).toLowerCase();
     } else if (verseRefArray[0].toLowerCase() == 'song') {
       return ('songofsongs');
     } else if (verseRefArray[0].toLowerCase() == 'psalm') {
@@ -72,15 +103,7 @@ function getBookNameLength(verseRefArray) {
 }
 
 function endsWithNonDigit(wholeString) {
-    /*if (wholeString.endsWith(':')) {
-      return wholeString.substring(0, wholeString.length - 1);
-    } else {
-      return wholeString;
-    }*/
-    return wholeString.endsWith(':') ||
-      wholeString.endsWith(';') ||
-      wholeString.endsWith(',') ||
-      wholeString.endsWith('-'); 
+      return isNaN(wholeString.charAt(wholeString.length -1));
 }
 
 function getStringWithoutTrailingChar(wholeString) {
@@ -92,13 +115,22 @@ function getStringWithoutTrailingChar(wholeString) {
 }
 
 function splitOnColon(colonSequence) {
-  let chapterVerse = colonSequence.split(":");
-  // check to see if - is there first
-  let verse = chapterVerse[1].split("-");
-  return {
-    chapter: chapterVerse[0],
-    verse: verse[0]
-  };
+  if (colonSequence.includes(':')) {
+    let chapterVerse = colonSequence.split(":");
+    let verse = ['1'];
+    if (chapterVerse[1]) {
+      verse = chapterVerse[1].split("-");
+    }
+    return {
+      chapter: chapterVerse[0].trim(),
+      verse: verse[0].trim()
+    };
+  } else {
+    return {
+      chapter: null,
+      verse: colonSequence.split('-')[0].trim()
+    };
+  }
 }
 
 function isSimpleReference(wholeString) {
