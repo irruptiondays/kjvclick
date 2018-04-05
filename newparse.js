@@ -1,5 +1,5 @@
 var extensionAndAnchor = '#v';
-var aHrefTag = '<a href="http://bible.irruptiondays.org?page=';
+var aHrefTag = '<a href="http://bible.irruptiondays.org?book=';
 var closeATag = '</a>';
 var closeAHref1 = '-1" target="bible" class="verseRef">'; //for chapters, no verse specified
 var closeAHref = '" target="bible" class="verseRef" title="Verse opens in a new window or tab">';
