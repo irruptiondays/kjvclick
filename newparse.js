@@ -16,6 +16,11 @@ function getFilenameFromVerseRef(verseReference) {
 function verseParser() {
   var re = $('body').html().replace(verseRegex, function(w) {
 
+      var hasNumber = /\d/;
+      if (!hasNumber.test(w.substring(1, w.length))) {
+        return w;
+      }
+
       let verseRef = w.split(" ");
 
       let bookName = getBook(verseRef);
@@ -30,11 +35,15 @@ function verseParser() {
           
           let currentChapter = null;
 
-          for (let j = 0; j < splitOnComma.length; ++j) {
+        for (let j = 0; j < splitOnComma.length; ++j) {
           
           let chapterAndVerse = [];
-          if (isNaN(splitOnComma[j].charAt(0))) {
+
+          if (isNaN(splitOnComma[j].charAt(0)) || isNaN(splitOnComma[j].charAt(2))) {
             // handle initial name
+            console.log('splitOnComma[j]: ', splitOnComma[j]);
+            console.log('charAt2: ', splitOnComma[j].charAt(2));
+            console.log('bookname ', bookName);
             chapterAndVerse = splitOnColon(splitOnComma[j].replace(bookName, ''));
           } else {
             chapterAndVerse = splitOnColon(splitOnComma[j]);
@@ -81,13 +90,13 @@ function getBook(verseRefArray) {
 function getBookFilename(verseRefArray) {
   // handle First and Second X
     if (verseRefArray[0] == 1 || verseRefArray[0] == 2 || verseRefArray[0] == 3) {
-      return (verseRefArray[0].trim() + verseRefArray[1].trim()).toLowerCase();
+      return (verseRefArray[0].trim() + verseRefArray[1].trim()).replace(' ', '').toLowerCase();
     } else if (verseRefArray[0].toLowerCase() == 'song') {
       return ('songofsongs');
     } else if (verseRefArray[0].toLowerCase() == 'psalm') {
       return 'psalms';
     } else {
-      return verseRefArray[0].toLowerCase();
+      return verseRefArray[0].replace(' ', '').toLowerCase();
     }
 }
 
@@ -115,6 +124,7 @@ function getStringWithoutTrailingChar(wholeString) {
 }
 
 function splitOnColon(colonSequence) {
+  console.log('colonSeq', colonSequence);
   if (colonSequence.includes(':')) {
     let chapterVerse = colonSequence.split(":");
     let verse = ['1'];
