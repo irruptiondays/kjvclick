@@ -3,7 +3,7 @@ var aHrefTag = '<a href="http://bible.irruptiondays.org?book=';
 var closeATag = '</a>';
 var closeAHref1 = '-1" target="bible" class="verseRef">'; //for chapters, no verse specified
 var closeAHref = '" target="bible" class="verseRef" title="Verse opens in a new window or tab">';
-var verseRegex = /(Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Psalms|Proverbs|Ecclesiastes|Song of Songs|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation) ((\d*)*(\d*:\d*)*(\d*-\d*)*(\d*, \d*)*(\d*; \d*)*)*/g;
+var verseRegex = /(Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Psalms|Proverbs|Ecclesiastes|Song of Songs|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation) ((\d*)*(^a-zA-Z)*(\d*:\d*)*(\d*-\d*)*(\d*, \d*)*(\d*; \d*)*(?! [A-Z]))*/g;
 
 function getFilenameFromVerseRef(verseReference) {
     if (verseReference.toLowerCase() == 'psalm') {
@@ -14,8 +14,14 @@ function getFilenameFromVerseRef(verseReference) {
 
 
 function verseParser() {
-  var re = $('body').html().replace(verseRegex, function(w) {
+  var re = $('body').html().replace(verseRegex, function(w) { 
 
+      console.log('w', w);
+      //return "<span style=\"color: red;\">" + w + "</span>";
+  
+
+
+      
       var hasNumber = /\d/;
       if (!hasNumber.test(w.substring(1, w.length))) {
         return w;
@@ -41,6 +47,7 @@ function verseParser() {
 
           if (isNaN(splitOnComma[j].charAt(0)) || isNaN(splitOnComma[j].charAt(2))) {
             // handle initial name
+            console.log('w', w);
             console.log('splitOnComma[j]: ', splitOnComma[j]);
             console.log('charAt2: ', splitOnComma[j].charAt(2));
             console.log('bookname ', bookName);
@@ -70,7 +77,7 @@ function verseParser() {
         
       }
 
-      return taggedReference;
+      return taggedReference; 
     });
 
   $('body').html(re);
