@@ -15,12 +15,6 @@ function getFilenameFromVerseRef(verseReference) {
 
 function verseParser() {
   var re = $('body').html().replace(verseRegex, function(w) { 
-
-      console.log('w', w);
-      //return "<span style=\"color: red;\">" + w + "</span>";
-  
-
-
       
       var hasNumber = /\d/;
       if (!hasNumber.test(w.substring(1, w.length))) {
@@ -46,11 +40,6 @@ function verseParser() {
           let chapterAndVerse = [];
 
           if (isNaN(splitOnComma[j].charAt(0)) || isNaN(splitOnComma[j].charAt(2))) {
-            // handle initial name
-            console.log('w', w);
-            console.log('splitOnComma[j]: ', splitOnComma[j]);
-            console.log('charAt2: ', splitOnComma[j].charAt(2));
-            console.log('bookname ', bookName);
             chapterAndVerse = splitOnColon(splitOnComma[j].replace(bookName, ''));
           } else {
             chapterAndVerse = splitOnColon(splitOnComma[j]);
@@ -61,6 +50,15 @@ function verseParser() {
             currentChapter = chapterAndVerse.chapter;
           } else {
             chapterAndVerse.chapter = currentChapter;
+          }
+          
+          if (!chapterAndVerse.chapter) {
+            if (isOneChapterBook(bookName)) {
+              chapterAndVerse.chapter = '1';
+            } else {
+              chapterAndVerse.chapter = chapterAndVerse.verse;
+              chapterAndVerse.verse = '1';
+            }
           }
           
           taggedReference += aHrefTag + getBookFilename(verseRef) + extensionAndAnchor + chapterAndVerse.chapter + '-' + chapterAndVerse.verse + closeAHref + splitOnComma[j] + closeATag
@@ -154,6 +152,16 @@ function isSimpleReference(wholeString) {
   return !getStringWithoutTrailingChar(wholeString).includes(',') && 
     !getStringWithoutTrailingChar(wholeString).includes(';') && 
     wholeString.includes(':');
+}
+
+function isOneChapterBook(bookName) {
+  console.log('book name is ', bookName);
+  let bookNameTrim = bookName.trim();
+  return bookNameTrim == '2 John' ||
+    bookNameTrim == '3 John' ||
+    bookNameTrim == 'Jude' ||
+    bookNameTrim == 'Philemon' ||
+    bookNameTrim == 'Obadiah';
 }
 
 
