@@ -129,7 +129,6 @@ function getStringWithoutTrailingChar(wholeString) {
 }
 
 function splitOnColon(colonSequence) {
-  console.log('colonSeq', colonSequence);
   if (colonSequence.includes(':')) {
     let chapterVerse = colonSequence.split(":");
     let verse = ['1'];
@@ -155,7 +154,6 @@ function isSimpleReference(wholeString) {
 }
 
 function isOneChapterBook(bookName) {
-  console.log('book name is ', bookName);
   let bookNameTrim = bookName.trim();
   return bookNameTrim == '2 John' ||
     bookNameTrim == '3 John' ||
