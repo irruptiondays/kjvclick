@@ -2,6 +2,7 @@ var extensionAndAnchor = '#v';
 var aHrefTag = '<a href="http://bible.irruptiondays.org?book=';
 var closeATag = '</a>';
 var closeAHref1 = '-1" target="bible" class="verseRef">'; //for chapters, no verse specified
+var andChapterAHref = '&chapter=';
 var closeAHref = '" target="bible" class="verseRef" title="Verse opens in a new window or tab">';
 var verseRegex = /(?!<a[^>]*?>)(?!<h.[^>]*?>)((Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Psalms|Proverbs|Ecclesiastes|Song of Songs|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation) ((\d*)*(^a-zA-Z)*(\d*:\d*)*(\d*-\d*)*(\d*, \d*)*(\d*; \d*)*(?! [A-Z]))*)(?![^<]*?<.h.>)(?![^<]*?<.a>)/g;
 
@@ -61,7 +62,9 @@ function verseParser() {
             }
           }
           
-          taggedReference += aHrefTag + getBookFilename(verseRef) + extensionAndAnchor + chapterAndVerse.chapter + '-' + chapterAndVerse.verse + closeAHref + splitOnComma[j] + closeATag
+          taggedReference += aHrefTag + getBookFilename(verseRef) + andChapterAHref + chapterAndVerse.chapter + extensionAndAnchor + chapterAndVerse.chapter + '-' + chapterAndVerse.verse + closeAHref + splitOnComma[j] + closeATag
+          
+          console.log('taggedReference', taggedReference);
           
           if (j != splitOnComma.length - 1 ) {
             taggedReference += ', ';
